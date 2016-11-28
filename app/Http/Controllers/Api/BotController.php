@@ -52,11 +52,17 @@ class BotController extends Controller
                 $userid = object_get($event, 'user', null);
                 if ($userid) {
                     $user = $this->getUser($userid);
-                    $this->bot->hears('hello', function (SlackBot $bot) {
+                    $this->bot->hears('{steps} yesterday', function (SlackBot $bot, $steps) {
                         $bot->reply('hi');
                     });
-                    $this->bot->hears('how many?', function (SlackBot $bot) {
-                        $bot->reply('sadfasdfhi');
+                    $this->bot->hears('{steps} today', function (SlackBot $bot, $steps) {
+                        $bot->reply('hi');
+                    });
+                    $this->bot->hears('{steps} on {date}', function (SlackBot $bot, $steps, $date) {
+                        $bot->reply($date);
+                    });
+                    $this->bot->hears('{steps} this week', function (SlackBot $bot, $steps) {
+                        $bot->reply('hi');
                     });
                     $this->bot->listen();
                 }
