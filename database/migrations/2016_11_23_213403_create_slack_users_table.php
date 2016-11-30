@@ -22,6 +22,7 @@ class CreateSlackUsersTable extends Migration
             $table->string('email')->nullable();
             $table->string('image_avatar')->nullable();
             $table->string('image_original')->nullable();
+            $table->string('timezone')->nullable();
             $table->timestamps();
 
             $table->unique('slack_id');
@@ -35,6 +36,6 @@ class CreateSlackUsersTable extends Migration
      */
     public function down()
     {
-        Schema::drop('slack_users');
+        Schema::dropIfExists('slack_users');
     }
 }

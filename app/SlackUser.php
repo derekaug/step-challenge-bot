@@ -30,6 +30,7 @@ use Eloquent;
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\StepLog[] $stepLogs
  */
 class SlackUser extends Eloquent
 {
@@ -40,7 +41,8 @@ class SlackUser extends Eloquent
         'last_name',
         'email',
         'image_avatar',
-        'image_original'
+        'image_original',
+        'timezone'
     ];
 
     protected $appends = [
@@ -50,5 +52,10 @@ class SlackUser extends Eloquent
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function stepLogs()
+    {
+        return $this->hasMany(StepLog::class);
     }
 }

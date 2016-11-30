@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Conversations\LogConversation;
 use App\Http\Controllers\Controller;
 use App\SlackUser;
+use Carbon\Carbon;
 use Frlnc\Slack\Core\Commander;
 use Illuminate\Http\Request;
 use Mpociot\SlackBot\SlackBot;
@@ -52,18 +54,41 @@ class BotController extends Controller
                 $userid = object_get($event, 'user', null);
                 if ($userid) {
                     $user = $this->getUser($userid);
-                    $this->bot->hears('{steps} yesterday', function (SlackBot $bot, $steps) {
-                        $bot->reply('hi');
-                    });
-                    $this->bot->hears('{steps} today', function (SlackBot $bot, $steps) {
-                        $bot->reply('hi');
-                    });
-                    $this->bot->hears('{steps} on {date}', function (SlackBot $bot, $steps, $date) {
-                        $bot->reply($date);
-                    });
-                    $this->bot->hears('{steps} this week', function (SlackBot $bot, $steps) {
-                        $bot->reply('hi');
-                    });
+                    $this->bot->hears(
+                        '{steps}( steps)? yesterday',
+                        function (SlackBot $bot, $steps) use ($user) {
+                            $bot->startConversation(new LogConversation($user, $steps, 'yesterday'));
+                        },
+                        SlackBot::DIRECT_MESSAGE
+                    );
+                    $this->bot->hears(
+                        '{steps}( steps)? today',
+                        function (SlackBot $bot, $steps) use ($user) {
+                            $bot->startConversation(new LogConversation($user, $steps, 'today'));
+                        },
+                        SlackBot::DIRECT_MESSAGE
+                    );
+                    $this->bot->hears(
+                        '{steps}( steps)? on {date}',
+                        function (SlackBot $bot, $steps, $nil, $date) use ($user) {
+                            $bot->startConversation(new LogConversation($user, $steps, $date));
+                        },
+                        SlackBot::DIRECT_MESSAGE
+                    );
+                    $this->bot->hears(
+                        '{steps} this week',
+                        function (SlackBot $bot, $steps) use ($user) {
+                            $bot->startConversation(new LogConversation($user, $steps, 'this week'));
+                        },
+                        SlackBot::DIRECT_MESSAGE
+                    );
+                    $this->bot->hears(
+                        'now',
+                        function (SlackBot $bot) use ($user) {
+                            $bot->reply(Carbon::now(object_get($user, 'timezone', 'UTC'))->toDateTimeString());
+                        },
+                        SlackBot::DIRECT_MESSAGE
+                    );
                     $this->bot->listen();
                 }
                 break;
@@ -85,8 +110,10 @@ class BotController extends Controller
             'email' => array_get($response, 'user.profile.email'),
             'image_avatar' => array_get($response, 'user.profile.image_192'),
             'image_original' => array_get($response, 'user.profile.image_original'),
+            'timezone' => array_get($response, 'user.tz', 'America/Los_Angeles')
         ]);
         $slack_user->save();
+        return $slack_user;
     }
 
     /**
