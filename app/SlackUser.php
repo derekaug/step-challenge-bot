@@ -31,6 +31,10 @@ use Eloquent;
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereUpdatedAt($value)
  * @mixin \Eloquent
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\StepLog[] $stepLogs
+ * @property string $timezone
+ * @property integer $steps
+ * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereTimezone($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereSteps($value)
  */
 class SlackUser extends Eloquent
 {
@@ -42,7 +46,8 @@ class SlackUser extends Eloquent
         'email',
         'image_avatar',
         'image_original',
-        'timezone'
+        'timezone',
+        'steps'
     ];
 
     protected $appends = [

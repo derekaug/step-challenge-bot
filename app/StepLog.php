@@ -21,6 +21,7 @@ use Eloquent;
  * @method static \Illuminate\Database\Query\Builder|\App\StepLog whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\StepLog whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read \App\SlackUser $slackUser
  */
 class StepLog extends Eloquent
 {
@@ -32,4 +33,9 @@ class StepLog extends Eloquent
     ];
 
     protected $appends = [];
+
+    public function slackUser()
+    {
+        return $this->belongsTo(SlackUser::class);
+    }
 }

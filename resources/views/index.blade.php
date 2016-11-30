@@ -30,7 +30,7 @@
                     <tr>
                         <td><img src="{{ $user->image_avatar }}" class="img-responsive img-rounded" alt="{{ $user->full_name }}'s avatar" /></td>
                         <td style="vertical-align: middle;">{{ $user->full_name }}</td>
-                        <td style="vertical-align: middle; text-align: right;">0 steps</td>
+                        <td style="vertical-align: middle; text-align: right;">{{ number_format($user->steps) }} steps</td>
                     </tr>
                 @endforeach
                 </tbody>

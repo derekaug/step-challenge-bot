@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\StepLog;
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Frlnc\Slack\Core\Commander;
 use Frlnc\Slack\Http\CurlInteractor;
@@ -17,7 +18,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        StepLog::saved(function (StepLog $step_log) {
+            $user = $step_log->slackUser;
+            $user->steps = $user->stepLogs()->sum('steps');
+            $user->save();
+        });
     }
 
     /**

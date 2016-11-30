@@ -69,8 +69,8 @@ class BotController extends Controller
                         SlackBot::DIRECT_MESSAGE
                     );
                     $this->bot->hears(
-                        '{steps}( steps)? on {date}',
-                        function (SlackBot $bot, $steps, $nil, $date) use ($user) {
+                        '{steps} on {date}',
+                        function (SlackBot $bot, $steps, $date) use ($user) {
                             $bot->startConversation(new LogConversation($user, $steps, $date));
                         },
                         SlackBot::DIRECT_MESSAGE

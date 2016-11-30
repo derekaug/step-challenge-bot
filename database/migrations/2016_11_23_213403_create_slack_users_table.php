@@ -23,6 +23,7 @@ class CreateSlackUsersTable extends Migration
             $table->string('image_avatar')->nullable();
             $table->string('image_original')->nullable();
             $table->string('timezone')->nullable();
+            $table->bigInteger('steps')->default('0');
             $table->timestamps();
 
             $table->unique('slack_id');
