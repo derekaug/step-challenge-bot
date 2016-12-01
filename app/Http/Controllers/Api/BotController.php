@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Conversations\HelpConversation;
 use App\Conversations\LogConversation;
 use App\Http\Controllers\Controller;
 use App\SlackUser;
@@ -52,48 +53,58 @@ class BotController extends Controller
             case 'event_callback':
                 $event = object_get($payload, 'event', null);
                 $userid = object_get($event, 'user', null);
-                if ($userid) {
+                $bot_id = object_get($event, 'bot_id', null);
+                if ($userid && empty($bot_id)) {
                     $user = $this->getUser($userid);
-                    $this->bot->hears(
-                        '{steps}( steps)? yesterday',
-                        function (SlackBot $bot, $steps) use ($user) {
-                            $bot->startConversation(new LogConversation($user, $steps, 'yesterday'));
-                        },
-                        SlackBot::DIRECT_MESSAGE
-                    );
-                    $this->bot->hears(
-                        '{steps}( steps)? today',
-                        function (SlackBot $bot, $steps) use ($user) {
-                            $bot->startConversation(new LogConversation($user, $steps, 'today'));
-                        },
-                        SlackBot::DIRECT_MESSAGE
-                    );
-                    $this->bot->hears(
-                        '{steps} on {date}',
-                        function (SlackBot $bot, $steps, $date) use ($user) {
-                            $bot->startConversation(new LogConversation($user, $steps, $date));
-                        },
-                        SlackBot::DIRECT_MESSAGE
-                    );
-                    $this->bot->hears(
-                        '{steps} this week',
-                        function (SlackBot $bot, $steps) use ($user) {
-                            $bot->startConversation(new LogConversation($user, $steps, 'this week'));
-                        },
-                        SlackBot::DIRECT_MESSAGE
-                    );
-                    $this->bot->hears(
-                        'now',
-                        function (SlackBot $bot) use ($user) {
-                            $bot->reply(Carbon::now(object_get($user, 'timezone', 'UTC'))->toDateTimeString());
-                        },
-                        SlackBot::DIRECT_MESSAGE
-                    );
+                    $this->logListeners($event, $user);
+                    $this->helpListeners($event, $user);
                     $this->bot->listen();
                 }
                 break;
         }
         return $response;
+    }
+
+    private function helpListeners($event, $user)
+    {
+        $this->bot->hears(
+            '(?:show )?leaderboard',
+            function (SlackBot $bot) use ($event, $user) {
+                $bot->startConversation(new HelpConversation($event, $user, 'leaderboard'));
+            }
+        );
+    }
+
+    private function logListeners($event, $user)
+    {
+        $this->bot->hears(
+            '{steps}(?: steps)? yesterday',
+            function (SlackBot $bot, $steps) use ($event, $user) {
+                $bot->startConversation(new LogConversation($event, $user, $steps, 'yesterday'));
+            },
+            SlackBot::DIRECT_MESSAGE
+        );
+        $this->bot->hears(
+            '{steps}(?: steps)? today',
+            function (SlackBot $bot, $steps) use ($event, $user) {
+                $bot->startConversation(new LogConversation($event, $user, $steps, 'today'));
+            },
+            SlackBot::DIRECT_MESSAGE
+        );
+        $this->bot->hears(
+            '{steps}(?: steps)? on {date}',
+            function (SlackBot $bot, $steps, $date) use ($event, $user) {
+                $bot->startConversation(new LogConversation($event, $user, $steps, $date));
+            },
+            SlackBot::DIRECT_MESSAGE
+        );
+        $this->bot->hears(
+            '{steps}(?: steps)? this week',
+            function (SlackBot $bot, $steps) use ($event, $user) {
+                $bot->startConversation(new LogConversation($event, $user, $steps, 'this week'));
+            },
+            SlackBot::DIRECT_MESSAGE
+        );
     }
 
     private function getUser($userid)

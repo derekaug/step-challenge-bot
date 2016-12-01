@@ -15,7 +15,7 @@ class DefaultController extends Controller
 {
     public function getIndex()
     {
-        $users = SlackUser::all();
+        $users = SlackUser::leaderboard()->get();
         return view('index', ['users' => $users]);
     }
 }

@@ -15,26 +15,40 @@ class LogConversation extends Conversation
     protected $user;
     protected $new_log;
     protected $number_formatter;
+    protected $api;
+    protected $begins_at;
+    protected $ends_at;
 
-    public function __construct(SlackUser $user, $steps, $begins_at, $ends_at = null)
+    public function __construct($event, SlackUser $user, $steps, $begins_at, $ends_at = null)
     {
+        $this->event = $event;
         $this->new_log = new StepLog();
         $this->number_formatter = $this->getNumberFormatter();
         $this->user = $user;
+        $this->api = app('slack_api');
+        $this->begins_at = $begins_at;
+        $this->ends_at = $ends_at;
 
         $this->new_log->steps = $this->number_formatter->parse($steps, NumberFormatter::TYPE_INT32);
         if ($begins_at === 'this week') {
             $this->new_log->begins_at = $this->getBeginThisWeek();
             $this->new_log->ends_at = $this->getEndThisWeek();
         } else {
-            $this->new_log->begins_at = new Carbon($begins_at, $this->getTimezone());
-            $this->new_log->ends_at = is_null($ends_at) ? $this->new_log->begins_at : new Carbon($ends_at, $this->getTimezone());
+            $begins_at = $this->isValidDate($begins_at) ? new Carbon($begins_at, $this->getTimezone()) : null;
+            $ends_at = $this->isValidDate($ends_at) ? new Carbon($ends_at, $this->getTimezone()) : null;
+            $this->new_log->begins_at = $begins_at;
+            $this->new_log->ends_at = is_null($ends_at) ? $begins_at : $ends_at;
         }
     }
 
     protected function getTimezone()
     {
         return object_get($this->user, 'timezone', 'UTC');
+    }
+
+    protected function getLocal(Carbon $date)
+    {
+        return (new Carbon($date->toDateTimeString(), $this->getTimezone()));
     }
 
     protected function getLastFriday()
@@ -64,7 +78,8 @@ class LogConversation extends Conversation
 
     protected function logSteps()
     {
-        if ($this->validate()) {
+        $errors = $this->validate();
+        if ($errors->count() <= 0) {
             $existing_logs = $this->user
                 ->stepLogs()
                 ->inRange($this->new_log->begins_at, $this->new_log->ends_at)
@@ -75,6 +90,8 @@ class LogConversation extends Conversation
             } else {
                 $this->saveLog();
             }
+        } else {
+            $this->displayErrors($errors);
         }
     }
 
@@ -103,29 +120,66 @@ class LogConversation extends Conversation
         });
     }
 
+    protected function displayErrors($errors)
+    {
+        $say = 'Failed to log your steps for the following reasons:';
+        foreach ($errors as $error) {
+            $say .= "\n • " . $error;
+        }
+        $this->say($say);
+    }
+
     protected function saveLog()
     {
         $saved = $this->user->stepLogs()->save($this->new_log);
         if ($saved) {
-            $this->say('Log saved: ' . $this->new_log;
+            $this->say('Log saved: ' . $this->new_log);
         } else {
-            $this->say('Log failed: ' . $this->new_log;
+            $this->displayErrors(['There was a server error, please try again.']);
         }
+    }
+
+    protected function getTomorrow()
+    {
+        return Carbon::now($this->getTimezone())->setTime(0, 0, 0)->addDay(1);
     }
 
     protected function validate()
     {
         $rvalue = collect([]);
 
-        if ($this->new_log->type === StepLog::TYPE_DAY) {
-            if ($this->new_log->begins_at->lt($this->getBeginThisWeek())) {
-                $rvalue->push('Only dates in the current week can be logged.');
+        if ($this->new_log->begins_at !== null && $this->new_log->type === StepLog::TYPE_DAY) {
+            $begins = $this->getLocal($this->new_log->begins_at);
+            if (
+                $begins->lt($this->getBeginThisWeek()) ||
+                $begins->gt($this->getEndThisWeek())
+            ) {
+                $rvalue->push('You can only log steps for dates in the current week.');
             }
-        } else {
 
+            if ($begins->gte($this->getTomorrow())) {
+                $rvalue->push('Steps can not be logged for future dates.');
+            }
         }
 
-        return [];
+        if ($this->begins_at !== null && !$this->isValidDate($this->begins_at)) {
+            $rvalue->push('Invalid date string: ' . $this->begins_at);
+        }
+
+        if ($this->ends_at !== null && !$this->isValidDate($this->ends_at)) {
+            $rvalue->push('Invalid date string: ' . $this->ends_at);
+        }
+
+        if ($this->new_log->steps <= 0) {
+            $rvalue->push('You must log at least 1 step.');
+        }
+
+        return $rvalue;
+    }
+
+    protected function isValidDate($string)
+    {
+        return (bool)strtotime($string);
     }
 
     protected function getNumberFormatter()

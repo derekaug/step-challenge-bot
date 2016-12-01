@@ -3,6 +3,7 @@
 namespace App;
 
 use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * App\SlackUser
@@ -34,6 +35,7 @@ use Eloquent;
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @method static \Illuminate\Database\Query\Builder|\App\SlackUser leaderboard()
  */
 class SlackUser extends Eloquent
 {
@@ -61,5 +63,13 @@ class SlackUser extends Eloquent
     public function stepLogs()
     {
         return $this->hasMany(StepLog::class);
+    }
+
+    public function scopeLeaderboard(Builder $query)
+    {
+        return $query
+            ->orderBy('steps', 'desc')
+            ->orderBy('first_name', 'asc')
+            ->orderBy('last_name', 'asc');
     }
 }
