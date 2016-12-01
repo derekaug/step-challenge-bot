@@ -1,0 +1,1 @@
+cd $OPENSHIFT_REPO_DIR; composer install
