@@ -1,2 +1,0 @@
-cd $OPENSHIFT_REPO_DIR
-touch database/database.sqlite
