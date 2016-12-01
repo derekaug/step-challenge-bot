@@ -2,3 +2,5 @@
 # .openshift/action_hooks/deploy
 
 ( cd $OPENSHIFT_REPO_DIR ; composer install --no-interaction --no-dev )
+( cd $OPENSHIFT_REPO_DIR ; touch database/database.sqlite )
+( cd $OPENSHIFT_REPO_DIR ; php artisan migrate )
