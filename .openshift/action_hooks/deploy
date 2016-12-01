@@ -1,1 +1,2 @@
-cd $OPENSHIFT_REPO_DIR; composer install
+cd $OPENSHIFT_REPO_DIR
+./composer.phar install
