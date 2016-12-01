@@ -1,2 +1,2 @@
 cd $OPENSHIFT_REPO_DIR
-composer install
+touch database/database.sqlite
