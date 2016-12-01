@@ -4,7 +4,6 @@ namespace App;
 
 use Eloquent;
 
-
 /**
  * App\SlackUser
  *
@@ -16,9 +15,12 @@ use Eloquent;
  * @property string $email
  * @property string $image_avatar
  * @property string $image_original
+ * @property string $timezone
+ * @property integer $steps
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read mixed $full_name
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\StepLog[] $stepLogs
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereSlackId($value)
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereName($value)
@@ -27,14 +29,11 @@ use Eloquent;
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereEmail($value)
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereImageAvatar($value)
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereImageOriginal($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereTimezone($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereSteps($value)
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\StepLog[] $stepLogs
- * @property string $timezone
- * @property integer $steps
- * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereTimezone($value)
- * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereSteps($value)
  */
 class SlackUser extends Eloquent
 {

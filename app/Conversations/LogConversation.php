@@ -3,7 +3,9 @@
 namespace App\Conversations;
 
 use App\SlackUser;
+use App\StepLog;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Mpociot\SlackBot\Answer;
 use Mpociot\SlackBot\Conversation;
 use NumberFormatter;
@@ -11,23 +13,22 @@ use NumberFormatter;
 class LogConversation extends Conversation
 {
     protected $user;
-    protected $steps;
-    protected $begins_at;
-    protected $ends_at;
-
+    protected $new_log;
     protected $number_formatter;
 
     public function __construct(SlackUser $user, $steps, $begins_at, $ends_at = null)
     {
+        $this->new_log = new StepLog();
         $this->number_formatter = $this->getNumberFormatter();
         $this->user = $user;
-        $this->steps = $this->number_formatter->parse($steps, NumberFormatter::TYPE_INT32);
+
+        $this->new_log->steps = $this->number_formatter->parse($steps, NumberFormatter::TYPE_INT32);
         if ($begins_at === 'this week') {
-            $this->begins_at = $this->getBeginThisWeek();
-            $this->ends_at = $this->getEndThisWeek();
+            $this->new_log->begins_at = $this->getBeginThisWeek();
+            $this->new_log->ends_at = $this->getEndThisWeek();
         } else {
-            $this->begins_at = new Carbon($begins_at, $this->getTimezone());
-            $this->ends_at = is_null($ends_at) ? $this->begins_at : new Carbon($ends_at, $this->getTimezone());
+            $this->new_log->begins_at = new Carbon($begins_at, $this->getTimezone());
+            $this->new_log->ends_at = is_null($ends_at) ? $this->new_log->begins_at : new Carbon($ends_at, $this->getTimezone());
         }
     }
 
@@ -36,14 +37,29 @@ class LogConversation extends Conversation
         return object_get($this->user, 'timezone', 'UTC');
     }
 
+    protected function getLastFriday()
+    {
+        return (new Carbon('last friday', $this->getTimezone()))->setTime(0, 0, 0);
+    }
+
     protected function getBeginThisWeek()
     {
-        return new Carbon('last monday', $this->getTimezone());
+        $begin = $this->getLastFriday();
+        if (env('CHALLENGE_START', false)) {
+            $start = new Carbon(env('CHALLENGE_START', $this->getTimezone()));
+            $begin = $begin->lt($start) ? $start : $begin;
+        }
+        return $begin;
     }
 
     protected function getEndThisWeek()
     {
-        return $this->getBeginThisWeek()->addDays(7);
+        $end = $this->getLastFriday()->addDays(7);
+        if (env('CHALLENGE_FINISH', false)) {
+            $finish = new Carbon(env('CHALLENGE_FINISH', $this->getTimezone()));
+            $end = $end->gt($finish) ? $finish : $end;
+        }
+        return $end;
     }
 
     protected function logSteps()
@@ -51,26 +67,35 @@ class LogConversation extends Conversation
         if ($this->validate()) {
             $existing_logs = $this->user
                 ->stepLogs()
-                ->where('begins_at', '<=', $this->ends_at)
-                ->where('ends_at', '>=', $this->begins_at)
+                ->inRange($this->new_log->begins_at, $this->new_log->ends_at)
                 ->get();
 
             if ($existing_logs->count() > 0) {
-                $this->confirmOverwrite();
+                $this->confirmOverwrite($existing_logs);
             } else {
                 $this->saveLog();
             }
         }
     }
 
-    protected function confirmOverwrite()
+    /**
+     * @param Collection $existing_logs
+     */
+    protected function confirmOverwrite(Collection $existing_logs)
     {
-        $this->ask('Do you want to overwrite previous logs for this date?', function (Answer $answer) {
+        $count = $existing_logs->count();
+
+        $ask = "Previous " . ($count === 1 ? "log" : "logs") . " found, would you like to replace them with new data:";
+        foreach ($existing_logs as $log) {
+            $ask .= "\n • " . $log;
+        }
+        $ask .= "\nRespond with *\"yes\"* to replace old data, or anything else to keep old data.";
+
+        $this->ask($ask, function (Answer $answer) {
             if ($answer->getText() === 'yes') {
                 $this->user
                     ->stepLogs()
-                    ->where('begins_at', '<=', $this->ends_at)
-                    ->where('ends_at', '>=', $this->begins_at)
+                    ->inRange($this->new_log->begins_at, $this->new_log->ends_at)
                     ->delete();
 
                 $this->saveLog();
@@ -80,21 +105,27 @@ class LogConversation extends Conversation
 
     protected function saveLog()
     {
-        $saved = $this->user->stepLogs()->create([
-            'steps' => $this->steps,
-            'begins_at' => $this->begins_at,
-            'ends_at' => $this->ends_at
-        ]);
+        $saved = $this->user->stepLogs()->save($this->new_log);
         if ($saved) {
-            $this->say('Log saved (' . $this->begins_at->toDateTimeString() . ').');
+            $this->say('Log saved: ' . $this->new_log;
         } else {
-            $this->say('Log failed (' . $this->begins_at->toDateTimeString() . ').');
+            $this->say('Log failed: ' . $this->new_log;
         }
     }
 
     protected function validate()
     {
-        return true;
+        $rvalue = collect([]);
+
+        if ($this->new_log->type === StepLog::TYPE_DAY) {
+            if ($this->new_log->begins_at->lt($this->getBeginThisWeek())) {
+                $rvalue->push('Only dates in the current week can be logged.');
+            }
+        } else {
+
+        }
+
+        return [];
     }
 
     protected function getNumberFormatter()
