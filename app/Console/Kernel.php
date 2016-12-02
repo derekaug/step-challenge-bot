@@ -29,8 +29,8 @@ class Kernel extends ConsoleKernel
                 \Log::info('Schedule Ran!');
             })
             ->everyMinute()
-            ->withoutOverlapping()
-            ->name('every-minute');
+            ->name('every-minute')
+            ->withoutOverlapping();
     }
 
     /**
