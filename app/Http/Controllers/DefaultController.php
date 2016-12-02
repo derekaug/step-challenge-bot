@@ -21,7 +21,9 @@ class DefaultController extends Controller
 
     public function getProfile(SlackUser $user)
     {
-        $user->load('stepLogs');
-        return view('profile', ['user' => $user]);
+        return view('profile', [
+            'user' => $user,
+            'logs' => $user->stepLogs()->orderBy('begins_at', 'desc')->get()
+        ]);
     }
 }

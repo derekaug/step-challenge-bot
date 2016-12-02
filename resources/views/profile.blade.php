@@ -25,11 +25,11 @@
                 <tfoot>
                     <tr>
                         <td class="text-right"><strong>Total: </strong></td>
-                        <td class="text-right">{{ $user->steps_display }}</td>
+                        <td class="text-right"><strong>{{ $user->steps_display }}</strong></td>
                     </tr>
                 </tfoot>
                 <tbody>
-                @foreach ($user->stepLogs as $log)
+                @foreach ($logs as $log)
                     <tr>
                         <td>{{ $log->date_display }}</td>
                         <td class="text-right">{{ $log->steps_display }}</td>
