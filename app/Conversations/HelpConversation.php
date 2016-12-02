@@ -55,7 +55,7 @@ class HelpConversation extends Conversation
             $say .= "\n*" . $rank . ".* " . $user->full_name . " (@" . $user->name . ")";
             $say .= " - " . number_format($user->steps) . " steps";
         }
-        $say .= "\n Full Leaderboard: " . route('index');
+        $say .= "\n Full Leaderboard: " . secure_url(route('index', [], false));
         $this->say($say, ['parse' => 'full']);
 
     }
