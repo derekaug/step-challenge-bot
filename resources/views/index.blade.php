@@ -7,13 +7,13 @@
     <title>Step Challenge</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ asset('/css/app.css') }}" type="text/css" />
+    <link rel="stylesheet" href="/css/app.css" type="text/css" />
 </head>
 <body>
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <img class="logo" src="{{ asset('/images/step-challenge-logo.png') }}" />
+            <img class="logo" src="/images/step-challenge-logo.png" />
         </div>
     </div>
     <div class="row">
