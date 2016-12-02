@@ -36,6 +36,8 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser whereUpdatedAt($value)
  * @mixin \Eloquent
  * @method static \Illuminate\Database\Query\Builder|\App\SlackUser leaderboard()
+ * @property-read mixed $formatted_steps
+ * @property-read mixed $steps_display
  */
 class SlackUser extends Eloquent
 {
@@ -52,12 +54,18 @@ class SlackUser extends Eloquent
     ];
 
     protected $appends = [
-        'full_name'
+        'full_name',
+        'steps_display'
     ];
 
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function getStepsDisplayAttribute()
+    {
+        return number_format($this->steps) . ' ' . ($this->steps == 1 ? 'step' : 'steps');
     }
 
     public function stepLogs()

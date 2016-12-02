@@ -25,6 +25,9 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static \Illuminate\Database\Query\Builder|\App\StepLog whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\StepLog inRange($begin, $end)
  * @mixin \Eloquent
+ * @property-read mixed $date_string
+ * @property-read mixed $steps_display
+ * @property-read mixed $date_display
  */
 class StepLog extends Eloquent
 {
@@ -43,7 +46,10 @@ class StepLog extends Eloquent
         'ends_at'
     ];
 
-    protected $appends = [];
+    protected $appends = [
+        'date_display',
+        'steps_display'
+    ];
 
     public function slackUser()
     {
@@ -68,15 +74,34 @@ class StepLog extends Eloquent
             ->where('ends_at', '>=', $begin);
     }
 
-    public function __toString()
+    public function getDateDisplayAttribute()
     {
-        $rvalue = number_format($this->steps) . ' steps ';
+        $rvalue = '';
         switch ($this->type) {
             case static::TYPE_RANGE:
-                $rvalue .= 'between ' . $this->begins_at->toDateString() . ' and ' . $this->ends_at->toDateString();
+                $rvalue = $this->begins_at->toDateString() . ' to ' . $this->ends_at->toDateString();
                 break;
             case static::TYPE_DAY:
-                $rvalue .= 'on ' .$this->begins_at->toDateString();
+                $rvalue = $this->begins_at->toDateString();
+                break;
+        }
+        return $rvalue;
+    }
+
+    public function getStepsDisplayAttribute()
+    {
+        return number_format($this->steps) . ' ' . ($this->steps == 1 ? 'step' : 'steps');
+    }
+
+    public function __toString()
+    {
+        $rvalue = $this->steps_display;
+        switch ($this->type) {
+            case static::TYPE_RANGE:
+                $rvalue .= 'from ' . $this->date_display;
+                break;
+            case static::TYPE_DAY:
+                $rvalue .= 'on ' . $this->date_display;
                 break;
         }
         return $rvalue;

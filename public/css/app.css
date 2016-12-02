@@ -5,8 +5,40 @@
   margin: 1em auto;
 }
 
-table#leaderboard tbody tr td {
+table#leaderboard tbody tr td, table#step-log tbody tr td {
+  position: relative;
   vertical-align: middle;
+}
+
+table#leaderboard tbody tr td a, table#step-log tbody tr td a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.separator-line {
+  display: block;
+  height: 18px;
+  margin: 1em 0 2em;
+  width: 100%;
+}
+
+.separator-line:after {
+  display: block;
+  content: ' ';
+  height: 18px;
+  width: 100%;
+  background: transparent url(/images/archrival_pattern.svg) 0 0 repeat;
+}
+
+.avatar {
+  display: block;
+  margin: 0 auto;
+  max-width: 165px;
+  width: 100%;
 }
 
 /*# sourceMappingURL=app.css.map */

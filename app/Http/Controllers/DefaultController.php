@@ -18,4 +18,10 @@ class DefaultController extends Controller
         $users = SlackUser::leaderboard()->get();
         return view('index', ['users' => $users]);
     }
+
+    public function getProfile(SlackUser $user)
+    {
+        $user->load('stepLogs');
+        return view('profile', ['user' => $user]);
+    }
 }

@@ -23,3 +23,4 @@ Route::group(
 );
 
 Route::get('/', 'DefaultController@getIndex')->name('index');
+Route::get('/{user}', 'DefaultController@getProfile')->name('profile');
