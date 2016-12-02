@@ -68,7 +68,7 @@ class BotController extends Controller
     private function helpListeners($event, $user)
     {
         $this->bot->hears(
-            '(?:show )?leaderboard',
+            '^(?:show )?leaderboard$',
             function (SlackBot $bot) use ($event, $user) {
                 $bot->startConversation(new HelpConversation($event, $user, 'leaderboard'));
             }
@@ -78,28 +78,28 @@ class BotController extends Controller
     private function logListeners($event, $user)
     {
         $this->bot->hears(
-            '{steps}(?: steps)? yesterday',
+            '^{steps}(?: steps)? yesterday$',
             function (SlackBot $bot, $steps) use ($event, $user) {
                 $bot->startConversation(new LogConversation($event, $user, $steps, 'yesterday'));
             },
             SlackBot::DIRECT_MESSAGE
         );
         $this->bot->hears(
-            '{steps}(?: steps)? today',
+            '^{steps}(?: steps)? today$',
             function (SlackBot $bot, $steps) use ($event, $user) {
                 $bot->startConversation(new LogConversation($event, $user, $steps, 'today'));
             },
             SlackBot::DIRECT_MESSAGE
         );
         $this->bot->hears(
-            '{steps}(?: steps)? on {date}',
+            '^{steps}(?: steps)? on {date}$',
             function (SlackBot $bot, $steps, $date) use ($event, $user) {
                 $bot->startConversation(new LogConversation($event, $user, $steps, $date));
             },
             SlackBot::DIRECT_MESSAGE
         );
         $this->bot->hears(
-            '{steps}(?: steps)? this week',
+            '^{steps}(?: steps)? this week$',
             function (SlackBot $bot, $steps) use ($event, $user) {
                 $bot->startConversation(new LogConversation($event, $user, $steps, 'this week'));
             },
