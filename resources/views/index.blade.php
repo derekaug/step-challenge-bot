@@ -7,17 +7,18 @@
     <title>Step Challenge</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ asset('/css/app.css') }}" type="text/css" />
 </head>
 <body>
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <img src="{{ asset('/images/step-challenge-logo.png') }}" style="display: block; width: 300px; margin: 1em auto;" />
+            <img class="logo" src="{{ asset('/images/step-challenge-logo.png') }}" />
         </div>
     </div>
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <table class="table table-striped table-hover table-condensed">
+            <table id="leaderboard" class="table table-striped table-hover table-condensed">
                 <colgroup>
                     <col style="width: 40px;"/>
                     <col/>
@@ -34,8 +35,8 @@
                 @foreach($users as $user)
                     <tr>
                         <td><img src="{{ $user->image_avatar }}" class="img-responsive img-rounded" alt="{{ $user->full_name }}'s avatar" /></td>
-                        <td style="vertical-align: middle;">{{ $user->full_name }}</td>
-                        <td style="vertical-align: middle; text-align: right;">{{ number_format($user->steps) }} steps</td>
+                        <td>{{ $user->full_name }}</td>
+                        <td class="text-right">{{ number_format($user->steps) }} steps</td>
                     </tr>
                 @endforeach
                 </tbody>

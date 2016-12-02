@@ -1,9 +1,18 @@
-
 // Fonts
 @import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
 
-// Variables
-@import "variables";
+.logo {
+  display: block;
+  width: 300px;
+  margin: 1em auto;
+}
 
-// Bootstrap
-@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+table#leaderboard {
+  tbody {
+    tr {
+      td {
+        vertical-align: middle;
+      }
+    }
+  }
+}
