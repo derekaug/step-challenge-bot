@@ -5,6 +5,7 @@ namespace App\Conversations;
 use App\SlackUser;
 use App\StepLog;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Collection;
 use Mpociot\SlackBot\Answer;
 use Mpociot\SlackBot\Conversation;
@@ -110,12 +111,14 @@ class LogConversation extends Conversation
 
         $this->ask($ask, function (Answer $answer) {
             if ($answer->getText() === 'yes') {
-                $this->user
-                    ->stepLogs()
-                    ->inRange($this->new_log->begins_at, $this->new_log->ends_at)
-                    ->delete();
+                DB::transaction(function() {
+                    $this->user
+                        ->stepLogs()
+                        ->inRange($this->new_log->begins_at, $this->new_log->ends_at)
+                        ->delete();
 
-                $this->saveLog();
+                    $this->saveLog();
+                });
             }
         });
     }
