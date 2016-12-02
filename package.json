@@ -1,4 +1,5 @@
 {
+  "name": "Archrival Step Challenge",
   "private": true,
   "scripts": {
     "prod": "gulp --production",
