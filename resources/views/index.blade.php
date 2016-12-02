@@ -11,6 +11,11 @@
 <body>
 <div class="container">
     <div class="row">
+        <div class="col-md-12">
+            <img src="{{ asset('/images/step-challenge-logo.png') }}" style="display: block; git width: 300px; margin: 1em auto;" />
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <table class="table table-striped table-hover table-condensed">
                 <colgroup>
