@@ -95,7 +95,7 @@ class StepLog extends Eloquent
 
     public function __toString()
     {
-        $rvalue = $this->steps_display;
+        $rvalue = $this->steps_display . ' ';
         switch ($this->type) {
             case static::TYPE_RANGE:
                 $rvalue .= 'from ' . $this->date_display;
