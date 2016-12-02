@@ -12,7 +12,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <img src="{{ asset('/images/step-challenge-logo.png') }}" style="display: block; git width: 300px; margin: 1em auto;" />
+            <img src="{{ asset('/images/step-challenge-logo.png') }}" style="display: block; width: 300px; margin: 1em auto;" />
         </div>
     </div>
     <div class="row">
