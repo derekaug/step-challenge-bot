@@ -1,0 +1,2 @@
+#!/bin/bash
+( cd ${OPENSHIFT_REPO_DIR} ; php artisan schedule:run >> /dev/null 2>&1 )
