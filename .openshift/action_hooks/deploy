@@ -3,4 +3,4 @@
 
 ( ln -s $OPENSHIFT_DATA_DIR.env $OPENSHIFT_REPO_DIR.env )
 ( cd $OPENSHIFT_REPO_DIR ; composer install --no-interaction --no-dev )
-( cd $OPENSHIFT_REPO_DIR ; php artisan down ; php artisan migrate ; php artisan up )
+( cd $OPENSHIFT_REPO_DIR ; php artisan down ; php artisan migrate --force ; php artisan up )
