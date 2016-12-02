@@ -230,4 +230,5 @@ return [
         'SlackBot' => Mpociot\SlackBot\Facades\SlackBot::class
     ],
 
+    'cache_break' => 2,
 ];
