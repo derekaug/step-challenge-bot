@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Slack\ApiHelper;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -26,7 +27,9 @@ class Kernel extends ConsoleKernel
     {
         $schedule
             ->call(function () {
-                \Log::info('Schedule Ran!');
+                \Log::info('Check channel ran!');
+                $helper = new ApiHelper();
+                $helper->getUsersInChannel('step-challenge');
             })
             ->everyMinute()
             ->name('every-minute')

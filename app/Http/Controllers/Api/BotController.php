@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Conversations\HelpConversation;
 use App\Conversations\LogConversation;
 use App\Http\Controllers\Controller;
+use App\Slack\ApiHelper;
 use App\SlackUser;
 use Carbon\Carbon;
 use Frlnc\Slack\Core\Commander;
@@ -20,11 +21,14 @@ class BotController extends Controller
     /** @var Commander api */
     private $api = null;
 
+    private $api_helper = null;
+
     public function __construct()
     {
         $this->bot = app('slackbot');
         $this->api = app('slack_api');
         $this->api->execute('users.setActive');
+        $this->api_helper = new ApiHelper();
     }
 
     /**
@@ -55,7 +59,7 @@ class BotController extends Controller
                 $userid = object_get($event, 'user', null);
                 $bot_id = object_get($event, 'bot_id', null);
                 if ($userid && empty($bot_id)) {
-                    $user = $this->getUser($userid);
+                    $user = $this->api_helper->getUser($userid);
                     $this->logListeners($event, $user);
                     $this->helpListeners($event, $user);
                     $this->bot->listen();
@@ -107,25 +111,6 @@ class BotController extends Controller
         );
     }
 
-    private function getUser($userid)
-    {
-        $response = $this->api->execute('users.info', ['user' => $userid])->getBody();
-        $slack_user = SlackUser::firstOrNew([
-            'slack_id' => array_get($response, 'user.id')
-        ]);
-        $slack_user->fill([
-            'slack_id' => array_get($response, 'user.id'),
-            'name' => array_get($response, 'user.name'),
-            'first_name' => array_get($response, 'user.profile.first_name'),
-            'last_name' => array_get($response, 'user.profile.last_name'),
-            'email' => array_get($response, 'user.profile.email'),
-            'image_avatar' => array_get($response, 'user.profile.image_192'),
-            'image_original' => array_get($response, 'user.profile.image_original'),
-            'timezone' => array_get($response, 'user.tz', 'America/Los_Angeles')
-        ]);
-        $slack_user->save();
-        return $slack_user;
-    }
 
     /**
      * @param ParameterBag $payload
